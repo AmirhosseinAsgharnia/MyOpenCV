@@ -1,7 +1,10 @@
 import numpy as np
 import cv2
 
-def order_points (pts):
+def order_points (pts: np.array) -> np.array:
+
+    # The function takes in four points, the corners, determine which corner is each point and returns it.
+
     rectangle = np.zeros ((4 , 2) , dtype="float32")
 
     sum_pts = np.sum (pts , axis = 1)
@@ -13,3 +16,9 @@ def order_points (pts):
 
     rectangle[1] = pts (np.argmin(sum_pts))
     rectangle[3] = pts (np.argmax(sum_pts))
+
+    return rectangle # (tl , br , tr , bl)
+
+def four_point_transform (image, pts):
+
+    rectangle = 
