@@ -8,15 +8,15 @@ def order_points(pts):
 
     rectangle = np.zeros ((4 , 2) , dtype="float32")
 
-    sum_pts = np.sum (pts , axis = 1)
+    sum_pts = np.sum (pts, axis = 1)
 
-    rectangle[0] = pts (np.argmin(sum_pts))
-    rectangle[2] = pts (np.argmax(sum_pts))
+    rectangle[0] = pts [np.argmin(sum_pts)]
+    rectangle[2] = pts [np.argmax(sum_pts)]
 
-    diff_pts = np.sum (pts , axis = 1)
+    diff_pts = np.diff (pts , axis = 1)
 
-    rectangle[1] = pts (np.argmin(sum_pts))
-    rectangle[3] = pts (np.argmax(sum_pts))
+    rectangle[1] = pts [np.argmin(diff_pts)]
+    rectangle[3] = pts [np.argmax(diff_pts)]
 
     return rectangle # (tl , br , tr , bl)
 
@@ -42,7 +42,12 @@ def main():
     ap.add_argument("-i", "--image", required=True, help="Path to the image to be scanned")
     args = vars(ap.parse_args())
     image = cv2.imread(args["image"])
-    pts = np.array([[100, 100], [500, 100], [500, 400], [100, 400]], dtype = "float32") # Example points
+
+    if image is None:
+        print(f"Error: Unable to load image at {args['image']}")
+        return
+    
+    pts = np.array([[208, 121], [822, 127], [83, 688], [927, 691]], dtype = "float32") # Example points
     warped = four_point_transform(image, pts)
     
     cv2.imshow("Original", image)
