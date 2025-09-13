@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import argparse
 
 def order_points(pts):
 
@@ -35,3 +36,18 @@ def four_point_transform (image, pts):
     M = cv2.getPerspectiveTransform(rectangle, destination)
     warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
     return warped
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-i", "--image", required=True, help="Path to the image to be scanned")
+    args = vars(ap.parse_args())
+    image = cv2.imread(args["image"])
+    pts = np.array([[100, 100], [500, 100], [500, 400], [100, 400]], dtype = "float32") # Example points
+    warped = four_point_transform(image, pts)
+    
+    cv2.imshow("Original", image)
+    cv2.imshow("Warped", warped)
+    cv2.waitKey(0)
+
+if __name__ == "__main__":
+    main()
