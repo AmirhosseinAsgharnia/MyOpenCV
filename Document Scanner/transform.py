@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import argparse
+import imutils
 
 def order_points(pts):
 
@@ -38,22 +39,43 @@ def four_point_transform (image, pts):
     return warped
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-i", "--image", required=True, help="Path to the image to be scanned")
+
+    inputs = argparse.ArgumentParser()
+    inputs.add_argument("-i", "--image", required=True, type=str, help="Path to the image to be scanned")
     
-    args = vars(ap.parse_args())
-    image = cv2.imread(args["image"])
+    inputs = vars (inputs.parse_args())
+
+    image = cv2.imread(inputs["image"])
 
     if image is None:
-        print(f"Error: Unable to load image at {args['image']}")
+        print(f"Image cannot be loaded from {inputs['image']}")
         return
     
-    pts = np.array([[208, 121], [822, 127], [83, 688], [927, 691]], dtype = "float32") # Example points
-    warped = four_point_transform(image, pts)
-    
-    cv2.imshow("Original", image)
-    cv2.imshow("Warped", warped)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur (gray, (5,5), 0)
+    edged = cv2.Canny(gray, 100, 100)
+
+    cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:5]
+
+    for i in cnts:
+        print(cv2.contourArea(i))
+
+    blank_1 = np.zeros_like(image)
+    blank_2 = np.zeros_like(image)
+
+    # Draw all contours in green, thickness 2
+    cv2.drawContours(blank_1, cnts, 0, (0, 255, 0), 1)
+    cv2.drawContours(blank_2, cnts, 2, (255, 0, 0), 1)
+
+    cv2.imshow("Contours1", blank_1)
+    cv2.imshow("Contours2", blank_2)
+    cv2.imshow("The image", image)
+    cv2.imshow("Edged", edged)
     cv2.waitKey(0)
+
+
 
 if __name__ == "__main__":
     main()
